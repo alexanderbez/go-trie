@@ -1,5 +1,7 @@
 # go-trie
 
+[![GoDoc](https://godoc.org/github.com/alexanderbez/go-trie?status.svg)](https://godoc.org/github.com/alexanderbez/go-trie)
+
 A primitive implementation of the Trie data structure in Golang. The Trie data
 structure allows for quick information retrieval, typically strings. Keys and
 their respective values are stored as bytes.
