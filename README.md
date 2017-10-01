@@ -19,13 +19,20 @@ constant value.
 ## Usage
 
 ```golang
+// Construct an empty trie with a single root node
 trie := NewTrie()
 
+// Insert a key value pair into the trie
 trie.Insert([]byte("someKey"), []byte("someValue"))
 
+// Search for some value
 value, ok := trie.Search([]byte("someKey"))
-// value => []byte("someValue")
-// ok => true
+
+// Get all keys stored in the trie
+keys := trie.GetAllKeys()
+
+// Get all values stored in the trie
+values := trie.GetAllValues()
 ```
 
 ## Tests
