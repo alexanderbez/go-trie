@@ -9,11 +9,11 @@ func TestNewTrie(t *testing.T) {
 	trie := NewTrie()
 
 	if trie.root == nil {
-		t.Errorf("Trie root is invalid (expected: %v) (got %v)", &trieNode{}, trie.root)
+		t.Errorf("trie root is invalid. expected: %v (got %v)", &trieNode{}, trie.root)
 	}
 
 	if trie.size != 1 {
-		t.Errorf("Trie size is invalid (expected: %v) (got %v)", 1, trie.size)
+		t.Errorf("trie size is invalid. expected: %v (got %v)", 1, trie.size)
 	}
 }
 
@@ -21,7 +21,7 @@ func TestTrieSize(t *testing.T) {
 	trie := NewTrie()
 
 	if trie.Size() != 1 {
-		t.Errorf("Trie size is invalid. Expected: %v (got %v)", 1, trie.Size())
+		t.Errorf("trie size is invalid. expected: %v (got %v)", 1, trie.Size())
 	}
 }
 
@@ -44,7 +44,7 @@ func TestTrieInsert(t *testing.T) {
 		size++
 
 		if trie.Size() != size {
-			t.Errorf("Trie size is invalid. Expected: %v (got %v)", size, trie.Size())
+			t.Errorf("trie size is invalid. expected: %v (got %v)", size, trie.Size())
 		}
 	}
 }
@@ -70,22 +70,25 @@ func TestTrieSearch(t *testing.T) {
 		v, ok := trie.Search([]byte(k))
 
 		if !ok {
-			t.Errorf("Unable to find key %v. Expected: %v (got %v)", k, true, ok)
+			t.Errorf("unable to find key %v. expected: %v (got %v)", k, true, ok)
 		}
 
 		if !bytes.Equal(v, eV) {
-			t.Errorf("Invalid value for key %v. Expected: %v (got %v)", k, eV, v)
+			t.Errorf("invalid value for key %v. expected: %v (got %v)", k, eV, v)
 		}
 	}
 
 	k := []byte("idontexist")
 	v, ok := trie.Search(k)
 	if ok {
-		t.Errorf("Unable to find key %v. Expected: %v (got %v)", k, false, ok)
+		t.Errorf("unable to find key %v. expected: %v (got %v)", k, false, ok)
 	}
 
 	if len(v) != 0 {
-		t.Errorf("Invalid value for key %v. Expected: %v (got %v)", k, []byte{}, v)
+		t.Errorf("invalid value for key %v. expected: %v (got %v)", k, []byte{}, v)
+	}
+}
+
 func TestGetPrefixValues(t *testing.T) {
 	trie := NewTrie()
 
