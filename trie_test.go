@@ -86,6 +86,47 @@ func TestTrieSearch(t *testing.T) {
 
 	if len(v) != 0 {
 		t.Errorf("Invalid value for key %v. Expected: %v (got %v)", k, []byte{}, v)
+func TestGetPrefixValues(t *testing.T) {
+	trie := NewTrie()
+
+	trieVals := trie.GetAllValues()
+
+	if len(trieVals) != 0 {
+		t.Errorf("invalid length of values returned. expected: %v (got %v)", 0, len(trieVals))
+	}
+
+	kvPairs := map[string][]byte{
+		"baby":  []byte{1, 2, 3, 4},
+		"bad":   []byte{2, 1, 4, 6},
+		"badly": []byte{4, 6, 1, 1},
+		"bank":  []byte{7, 7, 4, 4},
+		"box":   []byte{8, 1, 1, 9},
+		"dad":   []byte{9, 0, 1, 1},
+		"dance": []byte{6, 4, 2, 1},
+	}
+
+	for k, v := range kvPairs {
+		trie.Insert([]byte(k), v)
+	}
+
+	trieVals = trie.GetAllValues()
+	valsMap := make(map[string]bool)
+
+	for _, v := range trieVals {
+		valsMap[string(v)] = true
+	}
+
+	if len(trieVals) != len(kvPairs) {
+		t.Errorf("invalid length of values returned. expected: %v (got %v)", len(kvPairs), len(trieVals))
+	}
+
+	for _, v := range kvPairs {
+		if !valsMap[string(v)] {
+			t.Errorf("missing value from expected list of values. expected: %v", v)
+		}
+	}
+}
+
 func TestGetAllKeys(t *testing.T) {
 	trie := NewTrie()
 

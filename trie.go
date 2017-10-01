@@ -4,6 +4,7 @@
 package trie
 
 import (
+	"container/list"
 	"sync"
 )
 
@@ -137,4 +138,37 @@ func (t *Trie) GetAllKeys() [][]byte {
 
 	dfsGetKeys(t.root, []byte{})
 	return keys
+}
+
+// GetAllValues returns all the values that exist in the trie. Values are
+// retrieved by performing a BFS on the trie where at each node we examine if
+// that node has a value. If so, that value is appended to a list. After the
+// trie search is exhausted, the final list is returned.
+func (t *Trie) GetAllValues() [][]byte {
+	queue := list.New()
+	visited := make(map[*trieNode]bool)
+	values := [][]byte{}
+
+	queue.PushBack(t.root)
+
+	for queue.Len() > 0 {
+		element := queue.Front()
+		queue.Remove(element)
+
+		node := element.Value.(*trieNode)
+		visited[node] = true
+
+		if node.value != nil {
+			values = append(values, node.value)
+		}
+
+		for _, child := range node.children {
+			_, ok := visited[child]
+			if !ok {
+				queue.PushBack(child)
+			}
+		}
+	}
+
+	return values
 }
