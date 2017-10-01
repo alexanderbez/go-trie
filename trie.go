@@ -101,3 +101,40 @@ func (t *Trie) Search(key []byte) ([]byte, bool) {
 
 	return currNode.value, true
 }
+
+// GetAllKeys returns all the keys that exist in the trie. Keys are retrieved
+// by performing a DFS on the trie where at each node we keep track of the
+// current path (key) traversed thusfar and if that node has a value. If so,
+// the full path (key) is appended to a list. After the trie search is
+// exhausted, the final list is returned.
+func (t *Trie) GetAllKeys() [][]byte {
+	visited := make(map[*trieNode]bool)
+	keys := [][]byte{}
+
+	var dfsGetKeys func(n *trieNode, key []byte)
+	dfsGetKeys = func(n *trieNode, key []byte) {
+		if n != nil {
+			pathKey := append(key, n.symbol)
+			visited[n] = true
+
+			if n.value != nil {
+				fullKey := make([]byte, len(pathKey))
+				// Copy the contents of the current path (key) to a new key so
+				// future recursive calls will contain the correct bytes.
+				copy(fullKey, pathKey)
+				// Append the path (key) to the key list ignoring the first
+				// byte which is the root symbol.
+				keys = append(keys, fullKey[1:])
+			}
+
+			for _, child := range n.children {
+				if _, ok := visited[child]; !ok {
+					dfsGetKeys(child, pathKey)
+				}
+			}
+		}
+	}
+
+	dfsGetKeys(t.root, []byte{})
+	return keys
+}
