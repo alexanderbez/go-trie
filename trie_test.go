@@ -5,6 +5,33 @@ import (
 	"testing"
 )
 
+// byteSliceEq returns true iff two slices of bytes contain the same elements.
+func byteSliceEq(s1, s2 []Bytes) bool {
+	if len(s1) != len(s2) {
+		return false
+	}
+
+	result := true
+	i, n := 0, len(s1)
+
+	for i < n {
+		j := 0
+		e := false
+		for j < n && !e {
+			if bytes.Equal(s1[i], s2[j]) {
+				e = true
+			}
+			j++
+		}
+		if !e {
+			result = false
+		}
+		i++
+	}
+
+	return result
+}
+
 func TestNewTrie(t *testing.T) {
 	trie := NewTrie()
 
@@ -168,6 +195,73 @@ func TestGetAllKeys(t *testing.T) {
 	for k := range kvPairs {
 		if !keysMap[k] {
 			t.Errorf("missing key from expected list of keys. expected: %v", k)
+		}
+	}
+}
+
+func TestGetPrefixKeys(t *testing.T) {
+	trie := NewTrie()
+
+	prefix := []byte{}
+	trieKeys := trie.GetPrefixKeys(prefix)
+
+	if len(trieKeys) != 0 {
+		t.Errorf("invalid length of keys returned. expected: %v (got %v)", 0, len(trieKeys))
+	}
+
+	kvPairs := map[string]Bytes{
+		"baby":  Bytes{1, 2, 3, 4},
+		"bad":   Bytes{2, 1, 4, 6},
+		"badly": Bytes{4, 6, 1, 1},
+		"bank":  Bytes{7, 7, 4, 4},
+		"box":   Bytes{8, 1, 1, 9},
+		"dad":   Bytes{9, 0, 1, 1},
+		"dance": Bytes{6, 4, 2, 1},
+		"zip":   Bytes{0, 0, 1, 2},
+	}
+
+	for k, v := range kvPairs {
+		trie.Insert(Bytes(k), v)
+	}
+
+	testCases := []map[string]interface{}{
+		map[string]interface{}{
+			"prefix":      "z",
+			"expectedLen": 1,
+			"expectedKeys": []Bytes{
+				Bytes("zip"),
+			},
+		},
+		map[string]interface{}{
+			"prefix":      "ba",
+			"expectedLen": 4,
+			"expectedKeys": []Bytes{
+				Bytes("baby"),
+				Bytes("bad"),
+				Bytes("badly"),
+				Bytes("bank"),
+			},
+		},
+		map[string]interface{}{
+			"prefix":      "bad",
+			"expectedLen": 2,
+			"expectedKeys": []Bytes{
+				Bytes("bad"),
+				Bytes("badly"),
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		prefix = Bytes(tc["prefix"].(string))
+		trieKeys = trie.GetPrefixKeys(prefix)
+
+		if len(trieKeys) != tc["expectedLen"].(int) {
+			t.Errorf("invalid length of keys returned. expected: %v (got %v)", len(kvPairs), tc["expectedLen"].(int))
+		}
+
+		if !byteSliceEq(trieKeys, tc["expectedKeys"].([]Bytes)) {
+			t.Errorf("missing key from expected list of keys. expected: %v (got %v)", tc["expectedKeys"].([]Bytes), trieKeys)
 		}
 	}
 }
