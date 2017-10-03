@@ -8,6 +8,9 @@ import (
 	"sync"
 )
 
+// Bytes reflects a type alias for a byte slice
+type Bytes []byte
+
 // trieNode reflects a node that a trie is composed of. Each node can have a
 // single child node, child. that acts as a pointer to a singly linked list to
 // other potential children which are accessed via next. This allows for
@@ -60,7 +63,7 @@ func (t *Trie) Size() int {
 // and traversing the nodes all the way down until the key is exhausted. Once
 // exhausted, the currNode pointer should be a pointer to the last symbol in
 // the key and reflect the terminating node for that key value pair.
-func (t *Trie) Insert(key, value []byte) {
+func (t *Trie) Insert(key, value Bytes) {
 	t.rw.Lock()
 	defer t.rw.Unlock()
 
@@ -86,7 +89,7 @@ func (t *Trie) Insert(key, value []byte) {
 // Search attempts to search for a value in the trie given a key. If such a key
 // exists, it's value is returned along with a boolean to reflect that the key
 // exists. Otherwise, an empty value and false is returned.
-func (t *Trie) Search(key []byte) ([]byte, bool) {
+func (t *Trie) Search(key Bytes) (Bytes, bool) {
 	t.rw.RLock()
 	defer t.rw.RUnlock()
 
@@ -108,21 +111,22 @@ func (t *Trie) Search(key []byte) ([]byte, bool) {
 // current path (key) traversed thusfar and if that node has a value. If so,
 // the full path (key) is appended to a list. After the trie search is
 // exhausted, the final list is returned.
-func (t *Trie) GetAllKeys() [][]byte {
+func (t *Trie) GetAllKeys() []Bytes {
 	visited := make(map[*trieNode]bool)
-	keys := [][]byte{}
+	keys := []Bytes{}
 
-	var dfsGetKeys func(n *trieNode, key []byte)
-	dfsGetKeys = func(n *trieNode, key []byte) {
+	var dfsGetKeys func(n *trieNode, key Bytes)
+	dfsGetKeys = func(n *trieNode, key Bytes) {
 		if n != nil {
 			pathKey := append(key, n.symbol)
 			visited[n] = true
 
 			if n.value != nil {
-				fullKey := make([]byte, len(pathKey))
+				fullKey := make(Bytes, len(pathKey))
 				// Copy the contents of the current path (key) to a new key so
 				// future recursive calls will contain the correct bytes.
 				copy(fullKey, pathKey)
+
 				// Append the path (key) to the key list ignoring the first
 				// byte which is the root symbol.
 				keys = append(keys, fullKey[1:])
@@ -136,7 +140,7 @@ func (t *Trie) GetAllKeys() [][]byte {
 		}
 	}
 
-	dfsGetKeys(t.root, []byte{})
+	dfsGetKeys(t.root, Bytes{})
 	return keys
 }
 
@@ -144,10 +148,10 @@ func (t *Trie) GetAllKeys() [][]byte {
 // retrieved by performing a BFS on the trie where at each node we examine if
 // that node has a value. If so, that value is appended to a list. After the
 // trie search is exhausted, the final list is returned.
-func (t *Trie) GetAllValues() [][]byte {
+func (t *Trie) GetAllValues() []Bytes {
 	queue := list.New()
 	visited := make(map[*trieNode]bool)
-	values := [][]byte{}
+	values := []Bytes{}
 
 	queue.PushBack(t.root)
 
