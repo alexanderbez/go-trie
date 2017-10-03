@@ -20,9 +20,13 @@ type Bytes []byte
 
 // trieNode implements a node that the Trie is composed of. Each node contains
 // a symbol that a key can be composed of unless the node is the root. The node
-// has a collection of children that is represented as a hashmap. This allows
-// for time and space complexity efficiency. The node may also contain a value
-// that indicates a possible query result.
+// has a collection of children that is represented as a hashmap, although,
+// traditionally an array is used to represent each symbol in the given
+// alphabet. The node may also contain a value that indicates a possible query
+// result.
+//
+// TODO: Handle the case where the value given is a dummy value which can be
+// nil. Perhaps it's best to not store values at all.
 type trieNode struct {
 	children map[byte]*trieNode
 	symbol   byte
