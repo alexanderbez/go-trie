@@ -180,3 +180,56 @@ func (t *Trie) GetAllValues() []Bytes {
 
 	return values
 }
+
+// GetPrefixKeys returns all the keys that exist in the trie such that each key
+// contains a specified prefix. Keys are retrieved by performing a DFS on the
+// trie where at each node we keep track of the current path (key) and prefix
+// traversed thusfar. If a node has a value the full path (key) is appended to
+// a list. After the trie search is exhausted, the final list is returned.
+func (t *Trie) GetPrefixKeys(prefix Bytes) []Bytes {
+	visited := make(map[*trieNode]bool)
+	keys := []Bytes{}
+
+	if len(prefix) == 0 {
+		return keys
+	}
+
+	var dfsGetPrefixKeys func(n *trieNode, prefixIdx int, key Bytes)
+	dfsGetPrefixKeys = func(n *trieNode, prefixIdx int, key Bytes) {
+		if n != nil {
+			pathKey := append(key, n.symbol)
+
+			if prefixIdx == len(prefix) || n.symbol == prefix[prefixIdx] {
+				visited[n] = true
+
+				if n.value != nil {
+					fullKey := make(Bytes, len(pathKey))
+					// Copy the contents of the current path (key) to a new key
+					// so future recursive calls will contain the correct
+					// bytes.
+					copy(fullKey, pathKey)
+
+					keys = append(keys, fullKey)
+				}
+
+				if prefixIdx < len(prefix) {
+					prefixIdx++
+				}
+
+				for _, child := range n.children {
+					if _, ok := visited[child]; !ok {
+						dfsGetPrefixKeys(child, prefixIdx, pathKey)
+					}
+				}
+			}
+		}
+	}
+
+	// Find starting node from the root's children
+	if n, ok := t.root.children[prefix[0]]; ok {
+		dfsGetPrefixKeys(n, 0, Bytes{})
+	}
+
+	return keys
+}
+
