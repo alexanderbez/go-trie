@@ -139,22 +139,33 @@ func TestGetPrefixValues(t *testing.T) {
 		trie.Insert([]byte(k), v)
 	}
 
-	trieVals = trie.GetAllValues()
-	valsMap := make(map[string]bool)
-
-	for _, v := range trieVals {
-		valsMap[string(v)] = true
+	testCases := []map[string]interface{}{
+		map[string]interface{}{
+			"expectedLen": 7,
+			"expectedValues": []Bytes{
+				[]byte{1, 2, 3, 4},
+				[]byte{2, 1, 4, 6},
+				[]byte{4, 6, 1, 1},
+				[]byte{7, 7, 4, 4},
+				[]byte{8, 1, 1, 9},
+				[]byte{9, 0, 1, 1},
+				[]byte{6, 4, 2, 1},
+			},
+		},
 	}
 
-	if len(trieVals) != len(kvPairs) {
-		t.Errorf("invalid length of values returned. expected: %v (got %v)", len(kvPairs), len(trieVals))
-	}
+	for _, tc := range testCases {
+		trieVals = trie.GetAllValues()
 
-	for _, v := range kvPairs {
-		if !valsMap[string(v)] {
-			t.Errorf("missing value from expected list of values. expected: %v", v)
+		if len(trieVals) != tc["expectedLen"].(int) {
+			t.Errorf("invalid length of values returned. expected: %v (got %v)", len(trieVals), tc["expectedLen"].(int))
+		}
+
+		if !byteSliceEq(trieVals, tc["expectedValues"].([]Bytes)) {
+			t.Errorf("missing value from expected list of values. expected: %v (got %v)", tc["expectedKeys"].([]Bytes), trieVals)
 		}
 	}
+
 }
 
 func TestGetAllKeys(t *testing.T) {
@@ -181,20 +192,31 @@ func TestGetAllKeys(t *testing.T) {
 		trie.Insert([]byte(k), v)
 	}
 
-	trieKeys = trie.GetAllKeys()
-	keysMap := make(map[string]bool)
-
-	for _, k := range trieKeys {
-		keysMap[string(k)] = true
+	testCases := []map[string]interface{}{
+		map[string]interface{}{
+			"expectedLen": 8,
+			"expectedKeys": []Bytes{
+				Bytes("baby"),
+				Bytes("bad"),
+				Bytes("badly"),
+				Bytes("bank"),
+				Bytes("box"),
+				Bytes("dad"),
+				Bytes("dance"),
+				Bytes("zip"),
+			},
+		},
 	}
 
-	if len(trieKeys) != len(kvPairs) {
-		t.Errorf("invalid length of keys returned. expected: %v (got %v)", len(kvPairs), len(trieKeys))
-	}
+	for _, tc := range testCases {
+		trieKeys = trie.GetAllKeys()
 
-	for k := range kvPairs {
-		if !keysMap[k] {
-			t.Errorf("missing key from expected list of keys. expected: %v", k)
+		if len(trieKeys) != tc["expectedLen"].(int) {
+			t.Errorf("invalid length of keys returned. expected: %v (got %v)", len(kvPairs), tc["expectedLen"].(int))
+		}
+
+		if !byteSliceEq(trieKeys, tc["expectedKeys"].([]Bytes)) {
+			t.Errorf("missing key from expected list of keys. expected: %v (got %v)", tc["expectedKeys"].([]Bytes), trieKeys)
 		}
 	}
 }
