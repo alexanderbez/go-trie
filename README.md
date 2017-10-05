@@ -11,11 +11,6 @@ Typically, values in a Trie are unnecessary, rather, they are not traditionally
 needed. In such cases such as these, you can simply store some terminal or
 constant value.
 
-## Potential Additional Functionality
-
-- Get all keys that match a prefix
-- Get all values where each respective key matches a prefix
-
 ## Usage
 
 ```golang
@@ -33,6 +28,13 @@ keys := trie.GetAllKeys()
 
 // Get all values stored in the trie
 values := trie.GetAllValues()
+
+// Get all keys stored in the trie that contain a specific prefix
+keyByPrefix := trie.GetPrefixKeys([]byte("somePrefix"))
+
+// Get all values stored in the trie who's corresponding keys contain a
+// specific prefix.
+valuesByPrefix := trie.GetPrefixValues(prefix)
 ```
 
 ## Tests
