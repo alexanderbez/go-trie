@@ -116,7 +116,7 @@ func TestTrieSearch(t *testing.T) {
 	}
 }
 
-func TestGetPrefixValues(t *testing.T) {
+func TestGetAllValues(t *testing.T) {
 	trie := NewTrie()
 
 	trieVals := trie.GetAllValues()
@@ -158,11 +158,17 @@ func TestGetPrefixValues(t *testing.T) {
 		trieVals = trie.GetAllValues()
 
 		if len(trieVals) != tc["expectedLen"].(int) {
-			t.Errorf("invalid length of values returned. expected: %v (got %v)", len(trieVals), tc["expectedLen"].(int))
+			t.Errorf("invalid length of values returned. expected: %v (got %v)",
+				tc["expectedLen"].(int),
+				len(trieVals),
+			)
 		}
 
 		if !byteSliceEq(trieVals, tc["expectedValues"].([]Bytes)) {
-			t.Errorf("missing value from expected list of values. expected: %v (got %v)", tc["expectedKeys"].([]Bytes), trieVals)
+			t.Errorf("missing value from expected list of values. expected: %v (got %v)",
+				tc["expectedKeys"].([]Bytes),
+				trieVals,
+			)
 		}
 	}
 
@@ -212,11 +218,17 @@ func TestGetAllKeys(t *testing.T) {
 		trieKeys = trie.GetAllKeys()
 
 		if len(trieKeys) != tc["expectedLen"].(int) {
-			t.Errorf("invalid length of keys returned. expected: %v (got %v)", len(kvPairs), tc["expectedLen"].(int))
+			t.Errorf("invalid length of keys returned. expected: %v (got %v)",
+				tc["expectedLen"].(int),
+				len(trieKeys),
+			)
 		}
 
 		if !byteSliceEq(trieKeys, tc["expectedKeys"].([]Bytes)) {
-			t.Errorf("missing key from expected list of keys. expected: %v (got %v)", tc["expectedKeys"].([]Bytes), trieKeys)
+			t.Errorf("missing key from expected list of keys. expected: %v (got %v)",
+				tc["expectedKeys"].([]Bytes),
+				trieKeys,
+			)
 		}
 	}
 }
@@ -279,11 +291,92 @@ func TestGetPrefixKeys(t *testing.T) {
 		trieKeys = trie.GetPrefixKeys(prefix)
 
 		if len(trieKeys) != tc["expectedLen"].(int) {
-			t.Errorf("invalid length of keys returned. expected: %v (got %v)", len(kvPairs), tc["expectedLen"].(int))
+			t.Errorf("invalid length of keys returned. expected: %v (got %v)",
+				tc["expectedLen"].(int),
+				len(trieKeys),
+			)
 		}
 
 		if !byteSliceEq(trieKeys, tc["expectedKeys"].([]Bytes)) {
-			t.Errorf("missing key from expected list of keys. expected: %v (got %v)", tc["expectedKeys"].([]Bytes), trieKeys)
+			t.Errorf("missing key from expected list of keys for prefix: %v. expected: %v (got %v)",
+				prefix,
+				tc["expectedKeys"].([]Bytes),
+				trieKeys,
+			)
+		}
+	}
+}
+
+func TestGetPrefixValues(t *testing.T) {
+	trie := NewTrie()
+
+	prefix := []byte{}
+	trieValues := trie.GetPrefixValues(prefix)
+
+	if len(trieValues) != 0 {
+		t.Errorf("invalid length of keys returned. expected: %v (got %v)", 0, len(trieValues))
+	}
+
+	kvPairs := map[string]Bytes{
+		"baby":  Bytes{1, 2, 3, 4},
+		"bad":   Bytes{2, 1, 4, 6},
+		"badly": Bytes{4, 6, 1, 1},
+		"bank":  Bytes{7, 7, 4, 4},
+		"box":   Bytes{8, 1, 1, 9},
+		"dad":   Bytes{9, 0, 1, 1},
+		"dance": Bytes{6, 4, 2, 1},
+		"zip":   Bytes{0, 0, 1, 2},
+	}
+
+	for k, v := range kvPairs {
+		trie.Insert(Bytes(k), v)
+	}
+
+	testCases := []map[string]interface{}{
+		map[string]interface{}{
+			"prefix":      "z",
+			"expectedLen": 1,
+			"expectedValues": []Bytes{
+				Bytes{0, 0, 1, 2},
+			},
+		},
+		map[string]interface{}{
+			"prefix":      "ba",
+			"expectedLen": 4,
+			"expectedValues": []Bytes{
+				Bytes{1, 2, 3, 4},
+				Bytes{2, 1, 4, 6},
+				Bytes{4, 6, 1, 1},
+				Bytes{7, 7, 4, 4},
+			},
+		},
+		map[string]interface{}{
+			"prefix":      "bad",
+			"expectedLen": 2,
+			"expectedValues": []Bytes{
+				Bytes{2, 1, 4, 6},
+				Bytes{4, 6, 1, 1},
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		prefix = Bytes(tc["prefix"].(string))
+		trieValues = trie.GetPrefixValues(prefix)
+
+		if len(trieValues) != tc["expectedLen"].(int) {
+			t.Errorf("invalid length of values returned. expected: %v (got %v)",
+				tc["expectedLen"].(int),
+				len(trieValues),
+			)
+		}
+
+		if !byteSliceEq(trieValues, tc["expectedValues"].([]Bytes)) {
+			t.Errorf("missing value from expected list of values for prefix: %v. expected: %v (got %v)",
+				string(prefix),
+				tc["expectedValues"].([]Bytes),
+				trieValues,
+			)
 		}
 	}
 }
