@@ -11,13 +11,6 @@ import (
 // Bytes reflects a type alias for a byte slice
 type Bytes []byte
 
-// trieNode reflects a node that a trie is composed of. Each node can have a
-// single child node, child. that acts as a pointer to a singly linked list to
-// other potential children which are accessed via next. This allows for
-// memory-efficiency in that we do not need to store the entire key alphabet
-// as children for each node. A node may also have a value meaning it can be a
-// terminating/search node.
-
 // trieNode implements a node that the Trie is composed of. Each node contains
 // a symbol that a key can be composed of unless the node is the root. The node
 // has a collection of children that is represented as a hashmap, although,
