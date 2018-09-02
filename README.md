@@ -2,6 +2,7 @@
 
 [![GoDoc](https://godoc.org/github.com/alexanderbez/go-trie?status.svg)](https://godoc.org/github.com/alexanderbez/go-trie)
 [![Build Status](https://travis-ci.org/alexanderbez/go-trie.svg?branch=master)](https://travis-ci.org/alexanderbez/go-trie)
+[![Go Report Card](https://goreportcard.com/badge/github.com/alexanderbez/go-trie)](https://goreportcard.com/report/github.com/alexanderbez/go-trie)
 
 A primitive implementation of the Trie data structure in Golang. The Trie data
 structure allows for quick information retrieval, typically strings, and prefix
